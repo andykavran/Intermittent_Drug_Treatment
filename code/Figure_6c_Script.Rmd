@@ -44,8 +44,8 @@ mean_exp = round(rowMeans(plot_these[hc$order,c(10:29)]),4)
 hc = dend_sort_exp(hc, mean_exp)
 
 plot_heatmap(plot_these[hc$order, c(1:15, 19:21,25,26,16:18,22:24,27:29)], thresh = 0.97, cluster_rows = FALSE, cluster_cols = FALSE, gaps_col = c(9,20), show_rownames = FALSE)
-dev.copy2eps(file="../results/Fig6c_Script_Output/Fig7b.eps")
-gene_names[meet_criteria,] %>% write_csv("../results/Fig7b_Script_Output/Fig6c_genes.csv")
+dev.copy2eps(file="../results/Fig6c_Script_Output/Fig7c.eps")
+gene_names[meet_criteria,] %>% write_csv("../results/Fig6c_Script_Output/Fig6c_genes.csv")
 ```
 
 ```{r}
