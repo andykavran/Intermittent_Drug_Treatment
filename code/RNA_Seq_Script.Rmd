@@ -97,7 +97,7 @@ norm_counts %>% bind_cols(gene_names) %>%
 write_csv("../results/RNA_Seq_Script_Output/Filtered_Normalized_Data.csv")
 
 lfc = rlog_data - rowMeans(rlog_data[,c(1:3)])
-bind_cols(gene_names, as.data.frame(lfc)) %>% write_csv("../results/RNA_SEQ_Script_Output/Supplementary_Table_2.csv")
+bind_cols(gene_names, as.data.frame(lfc)) %>% write_csv("../results/RNA_Seq_Script_Output/Supplementary_Table_2.csv")
 ```
 
 Let's create a histogram of the distribution of mean and max reads per gene.
