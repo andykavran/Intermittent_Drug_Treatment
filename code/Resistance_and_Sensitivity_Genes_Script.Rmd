@@ -102,7 +102,7 @@ Plot heatmaps
 index = 0
 lfc_data_frame2 = data.frame()
 categories = c("IC", "RS", "RR")
-horz_breaks = array(, dim = c(0,0))
+horz_breaks = array(NA, dim = c(0,0))
 for (ii in categories) {
   sub_data = lfc_data_frame %>% filter(category == ii)
   index = index + dim(sub_data)[1]
