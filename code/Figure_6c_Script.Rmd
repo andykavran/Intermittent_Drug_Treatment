@@ -8,6 +8,7 @@ Load in data image saved from RNA_Seq_Script.Rmd
 library(DESeq2)
 library(eulerr)
 library(readr)
+library(magrittr)
 ```
 
 ```{r}

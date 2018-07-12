@@ -16,6 +16,7 @@ library(magrittr)
 library(dplyr)
 library(scales)
 library(readr)
+library(BiocParallel)
 ```
 
 Load in some helper functions
@@ -82,7 +83,7 @@ There are 60675 genes in the entire dataset, but only 36053 made it through the 
 
 Now we'll fit the DESeq object and transform the data using the regularized logarithm transform to do visualizations and analyses
 ```{r deseq object}
-dds = DESeq(filtered_data)
+dds = DESeq(filtered_data, parallel=TRUE, BPPARAM = MulticoreParam(4))
 rld <- rlog(dds, blind=FALSE)
 rlog_data = assay(rld)
 save(dds, rlog_data, gene_names, file="../data/processed_rna_seq_data.rda")
