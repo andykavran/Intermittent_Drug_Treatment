@@ -43,8 +43,6 @@ r108 =  results(dds,contrast = c('condition', '10', '8'),  alpha=a_thresh, lfcTh
 unadjusted_pvals = c(r24$pvalue, r26$pvalue, r56$pvalue, r68$pvalue, r108$pvalue, r25$pvalue, r27$pvalue, r29$pvalue, r28$pvalue, r210$pvalue)
 readjust_pvals = unadjusted_pvals %>% p.adjust(method = "fdr")
 
-
-
 tests = list(r24 = r24, r26 = r26, r56 = r56, r68 = r68, r108 = r108, r25 = r25, r27 = r27, r29 = r29, r28 = r28, r210 =r210)
 len_save = 1
 for(ii in names(tests)){
