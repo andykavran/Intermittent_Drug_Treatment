@@ -1,0 +1,70 @@
+---
+title: "Figure 6c"
+author: "Andrew Kavran"
+output: html_document
+---
+Load in data image saved from RNA_Seq_Script.Rmd
+```{r, message = FALSE, warning=FALSE}
+library(DESeq2)
+library(eulerr)
+library(readr)
+```
+
+```{r}
+load("../data/processed_rna_seq_data.rda")
+source("./Helper_Functions/plot_heatmap.R")
+source("./Helper_Functions/dend_sort_exp.R")
+source("./Helper_Functions/sort_exp.R")
+```
+
+```{r}
+lfc_thresh = 0.97
+a_thresh = 0.05
+r12 =  results(dds,contrast = c('condition', '1', '2'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+r23 =  results(dds,contrast = c('condition', '1', '2'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+r68 =  results(dds,contrast = c('condition', '6', '8'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+r108 =  results(dds,contrast = c('condition', '10', '8'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+
+r24 = results(dds,contrast = c('condition', '2', '4'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+r25 = results(dds,contrast = c('condition', '2', '5'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+r27 = results(dds,contrast = c('condition', '2', '7'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+r29 = results(dds,contrast = c('condition', '2', '9'),  alpha=a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs")
+```
+
+```{r}
+meet_criteria = which(r12$padj>a_thresh & r23$padj>a_thresh & r68$padj<a_thresh & r108$padj<a_thresh & (sign(r68$log2FoldChange) == sign(r68$log2FoldChange)) &r24$padj>a_thresh & r25$padj>a_thresh & r27$padj>a_thresh & r29$padj>a_thresh)
+
+plot_these = rlog_data[meet_criteria,] - rowMeans(rlog_data[meet_criteria, 1:3])
+colnames(plot_these) =  c(rep("Vector Control", 3), rep("V600E Induced", 3), rep("20hr Drug", 3), rep("Week 1", 3), rep("Week 2 CONT",3), rep("Week 2 INT-OFF", 3), rep("Week 3 CONT", 3), rep("Week 3 INT-ON", 3), rep("Week 4 CONT", 2), rep("Week 4 INT-OFF", 3))
+
+rownames(plot_these) = gene_names$symbol[meet_criteria]
+dist.mat = dist(plot_these[,4:29])
+hc = hclust(dist.mat)
+mean_exp = round(rowMeans(plot_these[hc$order,c(10:29)]),4)
+hc = dend_sort_exp(hc, mean_exp)
+
+plot_heatmap(plot_these[hc$order, c(1:15, 19:21,25,26,16:18,22:24,27:29)], thresh = 0.97, cluster_rows = FALSE, cluster_cols = FALSE, gaps_col = c(9,20), show_rownames = FALSE)
+dev.copy2eps(file="../results/Fig6c_Script_Output/Fig7b.eps")
+gene_names[meet_criteria,] %>% write_csv("../results/Fig7b_Script_Output/Fig6c_genes.csv")
+```
+
+```{r}
+pca = prcomp(t(rlog_data))
+threshold = 0.02
+pc1_bool= abs(pca$rotation[,1]) > threshold
+pc2_bool = abs(pca$rotation[,2]) > threshold
+pc1_genes = which(pc1_bool)
+pc2_genes = which(pc2_bool)
+pc1_gene_names = gene_names[pc1_genes,]
+pc2_gene_names = gene_names[pc2_genes,]
+pc1_only = setdiff(pc1_genes, pc2_genes)
+pc2_only = setdiff(pc2_genes, pc1_genes)
+both_pc = intersect(pc1_genes, pc2_genes)
+```
+
+```{r}
+this_list = list(pc2 = c(pc2_only, both_pc), figure_6_c = meet_criteria)
+eul = euler(this_list)
+plot(eul, quantities = TRUE)
+```
+
