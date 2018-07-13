@@ -25,7 +25,7 @@ source("Helper_Functions/sort_exp.R")
 Run hypothesis tests for the reversible and irreversible criteria.
 ```{r hypo tests}
 lfc_thresh = 0.97
-a_thresh = 0.05
+a_thresh = 0.01
 
 # do these significantly change by an abs(lfc) greater than 0.97?
 r24 = results(dds, contrast = c('condition', '2', '4'), alpha = a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs", parallel = TRUE, BPPARAM = MulticoreParam(4))
@@ -134,5 +134,9 @@ lfc_other_only = lfc_other_only[,c(1:15, 19:21,25,26,16:18,22:24,27:29)]
 
 plot_heatmap(lfc_other_only, thresh = 0.97, cluster_rows = hc2, cluster_cols = FALSE, gaps_col = c(9,20), legend_breaks = c(-6, -4, -2, -0.97, 0, 0.97, 2, 4, 6), labels_row = lfc_other_only$gene_name.symbol, show_colnames=FALSE, fontsize = 7)
 dev.copy2eps(file="../results/Resistance_and_Sensitivity_Genes_Script_Output/Supplemental_Resistance_and_Sensitivity_Genes_Script_Output.eps")
+```
+
+```{r}
+sessionInfo()
 ```
 

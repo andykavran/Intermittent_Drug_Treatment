@@ -60,7 +60,7 @@ colnames(plot_these) =  c(rep("Vector Control", 3), rep("V600E Induced", 3), rep
 
 rownames(plot_these) = gene_names$symbol[meet_criteria]
 dist.mat = dist(plot_these[,4:29])
-hc = hclust(dist.mat)
+hc = hclust(dist.mat, method = "ward.D2")
 mean_exp = round(rowMeans(plot_these[hc$order,c(10:29)]),4)
 hc = dend_sort_exp(hc, mean_exp)
 
@@ -87,5 +87,9 @@ both_pc = intersect(pc1_genes, pc2_genes)
 this_list = list(pc2 = c(pc2_only, both_pc), figure_6_c = meet_criteria)
 eul = euler(this_list)
 plot(eul, quantities = TRUE)
+```
+
+```{r}
+sessionInfo()
 ```
 

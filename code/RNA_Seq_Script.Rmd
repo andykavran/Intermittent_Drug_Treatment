@@ -68,7 +68,8 @@ Save a csv file of the data for **Table S1**.
 ```{r table s1}
 full_data = data %>% assay %>% as.data.frame
 complete_unnormalized_data = bind_cols(gene_names, full_data)
-write_csv(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/Supplementary_Table_1.csv")
+write_csv(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.csv")
+(complete_unnormalized_data / colData(dds)$sizeFactors) %>% write_csv(path = "../results/RNA_Seq_Script_Output/complete_normalized_counts.csv")
 ```
 
 Now we pre-filter the data set to remove any genes that have 0 or 1 read across all conditions. (This reduces memory usage and speeds up the following functions) 
@@ -89,7 +90,8 @@ rlog_data = assay(rld)
 save(dds, rlog_data, gene_names, file="../data/processed_rna_seq_data.rda")
 ```
 
-Save tables of raw and normalized counts.
+Save tables of filtered raw and normalized counts.
+Log fold changes from the mean of vector control cells is in **Supplmentary Table 2** .
 ```{r more tables}
 assay(dds) %>% as.data.frame %>% bind_cols(gene_names) %>% write_csv("../results/RNA_Seq_Script_Output/Filtered_Unnormalized_Data.csv")
 
