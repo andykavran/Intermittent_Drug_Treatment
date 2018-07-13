@@ -1,8 +1,9 @@
 ---
 title: "Figure 6c"
-author: "Andrew Kavran"
 output: html_document
 ---
+This code generates figure 6c in Stuart et al. 2018.
+
 Load in data image saved from RNA_Seq_Script.Rmd
 ```{r, message = FALSE, warning=FALSE}
 library(DESeq2)

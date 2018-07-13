@@ -1,6 +1,5 @@
 ---
 title: "Resistance and Sensitivity Genes"
-author: "Andrew Kavran"
 output: html_document
 ---
 This code generates figure 7 and supplemental figure 3 in Stuart et al. 2018.
@@ -25,7 +24,7 @@ source("Helper_Functions/sort_exp.R")
 Run hypothesis tests for the reversible and irreversible criteria.
 ```{r hypo tests}
 lfc_thresh = 0.97
-a_thresh = 0.01
+a_thresh = 0.05
 
 # do these significantly change by an abs(lfc) greater than 0.97?
 r24 = results(dds, contrast = c('condition', '2', '4'), alpha = a_thresh, lfcThreshold = lfc_thresh, altHypothesis = "greaterAbs", parallel = TRUE, BPPARAM = MulticoreParam(4))

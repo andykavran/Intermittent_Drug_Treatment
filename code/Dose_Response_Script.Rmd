@@ -1,9 +1,8 @@
 ---
-title: "Dose Response Loess Regression"
-author: "Andy Kavran"
+title: "Figures 2 and 4 Dose Responses"
 output: html_document
 ---
-
+This code generates the dose response curves in figures 2 and 4 of Stuart et al. 2018.
 ```{r setup, message = FALSE}
 library(dplyr)
 library(ggplot2)
@@ -12,7 +11,8 @@ library(tidyr)
 library(readr)
 ```
 
-```{r}
+define some helper functions
+```{r helper functions}
 plot_facets = function(dose_data, xx, yy, group, label){
 ggplot(dose_data, aes_(x = as.name(xx), y = as.name(yy), group = as.name(group)))+
   geom_smooth(method = 'loess', span = 0.5, se=TRUE)+
@@ -34,7 +34,7 @@ find_ic50 = function(y){
 source("./Helper_Functions/fancy_scientific.R")
 ```
 
-#Mutants Dose Response to LGX818
+# Mutants Dose Response to LGX818
 ```{r}
 lgx_dose = read_csv("../data/lgx_mutant_dose_response.csv")
 lgx_dose = gather(lgx_dose, concentration, number, -c(sample, rep_number), convert = TRUE)
@@ -43,7 +43,10 @@ names(factor_levels) = unique(lgx_dose$sample)
 lgx_dose$sample2 = factor(lgx_dose$sample, levels = unique(lgx_dose$sample))
 plot_facets(lgx_dose, "concentration", "number", "sample2", "LGX Concentration (nM)")
 ggsave("../results/Dose_Response_Script_Output/lgx_facet.eps", family = "Times")
+```
 
+### Figure 2 dose response LGX818
+```{r}
 agg_1 = aggregate(lgx_dose$number, by=list(sample2 = lgx_dose$sample2, concentration = lgx_dose$concentration), mean)
 agg_2= aggregate(lgx_dose$number, by=list(sample2 = lgx_dose$sample2, concentration = lgx_dose$concentration), sd)
 
@@ -70,7 +73,7 @@ ggplot(plot_data, aes(x =concentration, y = Mean, ymin = (Mean-SD/2), ymax = (Me
 ggsave("../results/Dose_Response_Script_Output/lgx_dose_responses.eps", family = "Times")
 ```
 
-
+Estimate IC50s.
 ```{r}
 fifty = vector("list", 7)
 index = 1
@@ -96,6 +99,7 @@ names(fifty) = unique(lgx_dose$sample)
 fifty
 ```
 
+Bootstrap 200 samples to get confidence intervals of IC50
 ```{r}
 fifty_ci = vector("list", 7)
 confidence_interval = vector("list", 7)
@@ -130,7 +134,7 @@ names(confidence_interval) = unique(lgx_dose$sample)
 confidence_interval
 ```
 
-#Mutants Dose Response to MEK162
+# Mutants Dose Response to MEK162
 ```{r}
 mek2_dose = read_csv("../data/mek162_mutant_dose_response.csv")
 mek2_dose = gather(mek2_dose, key = concentration, value = number, -c(sample, rep_number), convert = TRUE)
@@ -139,7 +143,10 @@ names(factor_levels) = unique(mek2_dose$sample)
 mek2_dose$sample2 = factor(mek2_dose$sample, levels = unique(mek2_dose$sample))
 plot_facets(mek2_dose, "concentration", "number", "sample2", "MEK162 Concentration (nM)")
 ggsave("../results/Dose_Response_Script_Output/mek162_facet.eps", family = "Times")
+```
 
+### Generate Figure 3 MEK162 Dose Response
+```{r}
 agg_1 = aggregate(mek2_dose$number, by=list(sample2 = mek2_dose$sample2, concentration = mek2_dose$concentration), mean)
 agg_2= aggregate(mek2_dose$number, by=list(sample2 = mek2_dose$sample2, concentration = mek2_dose$concentration), sd)
 
@@ -166,6 +173,7 @@ ggplot(plot_data, aes(x =concentration, y = Mean, ymin = (Mean-SD/2), ymax = (Me
 ggsave("../results/Dose_Response_Script_Output/mek162_dose_responses.eps", family = "Times")
 ```
 
+Estimate IC50
 ```{r}
 fifty = vector("list", 6)
 index = 1
@@ -191,6 +199,7 @@ names(fifty) = unique(mek2_dose$sample)
 fifty
 ```
 
+Bootstrap 200 samples to get confidence intervals of IC50
 ```{r}
 fifty_ci = vector("list", 6)
 confidence_interval = vector("list", 6)
@@ -225,15 +234,16 @@ names(confidence_interval) = unique(mek2_dose$sample)
 confidence_interval
 ```
 
-
-```{r}
+# Time Course Dose Responses
+```{r, message = FALSE}
 dose_data = read_csv("../data/intermittent_dose_response.csv")
 dose_data2 = gather(dose_data, concentration, number, -c(sample, rep_number), convert = TRUE)
 plot_facets(dose_data2, "concentration", "number", "sample", "LGX Concentration (nM)")
 ggsave("../results/Dose_Response_Script_Output/timecourse_facet_dose_responses.eps")
 ```
 
-#Time Course Dose Responses
+### Create figure 4 dose responses
+#### Continuous Dose Response
 ```{r, warning = FALSE, message = FALSE}
 dose_data_continuous = filter(dose_data2, sample =="Vector Control" | sample =="V600E" | sample =="Week 1" |sample =="Week 2 C" | sample =="Week 3 C" | sample =="Week 4 C")
 
@@ -262,6 +272,7 @@ ggplot(plot_data, aes(x =concentration, y = Mean, ymin = (Mean-SD/2), ymax = (Me
 ggsave("../results/Dose_Response_Script_Output/continuous_dose_response.eps", family = "Times")
 ```
 
+#### Intermittent Dose Response
 ```{r, warning = FALSE, message=FALSE}
 dose_data_int = filter(dose_data2, sample =="Vector Control" | sample =="V600E" | sample =="Week 1" |sample =="Week 2 I" | sample =="Week 3 I" | sample =="Week 4 I")
 
@@ -291,7 +302,7 @@ ggplot(plot_data, aes(x =concentration, y = Mean, ymin = (Mean-SD/2), ymax = (Me
 ggsave("../results/Dose_Response_Script_Output/intermittent_dose_response.eps", family = "Times")
 ```
 
-IC50s
+Estimate IC50s
 ```{r}
 fifty = vector("list", 9)
 index = 1
@@ -317,6 +328,7 @@ names(fifty) = unique(dose_data$sample)
 fifty
 ```
 
+Bootstrap samples to get confidence intervals for IC50s
 ```{r}
 fifty_ci = vector("list", 9)
 confidence_interval = vector("list", 9)
