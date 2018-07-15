@@ -69,7 +69,7 @@ Save a csv file of the data for **Table S1**.
 full_data = data %>% assay %>% as.data.frame
 complete_unnormalized_data = bind_cols(gene_names, full_data)
 write_csv(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.csv")
-(complete_unnormalized_data / colData(dds)$sizeFactors) %>% write_csv(path = "../results/RNA_Seq_Script_Output/complete_normalized_counts.csv")
+write_delim(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.txt", delim = "\t")
 ```
 
 Now we pre-filter the data set to remove any genes that have 0 or 1 read across all conditions. (This reduces memory usage and speeds up the following functions) 
