@@ -171,7 +171,7 @@ ggplot(data = dat, aes(x=pc1, y=pc2))+
   theme_gray(base_size = 15)+
   theme(text = element_text(family = "Times"))
 ggsave("../results/RNA_Seq_Script_Output/PCA_plot.eps", family = "Times")
-ggsave("../results/RNA_Seq_Script_Output/PCA_plot.png")
+ggsave("../results/RNA_Seq_Script_Output/PCA_plot.png", height = 4.5, width = 7.3)
 ```
 
 Get the names of genes with high loadings for each PC
