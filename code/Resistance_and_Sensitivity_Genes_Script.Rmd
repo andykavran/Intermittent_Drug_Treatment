@@ -2,7 +2,7 @@
 title: "Resistance and Sensitivity Genes"
 output: html_document
 ---
-This code generates figure 7 and supplemental figure 3 in Stuart et al. 2018.
+This code generates the heatmaps of resistance and sensitivity genes in figure 7 and supplemental figure S3 in Stuart et al. 2018.
 
 First load in libraries
 ```{r libraries, message = FALSE, warning=FALSE}
@@ -94,7 +94,7 @@ rs_genes$category[!(irreversible_rs ==(rs_genes$category == "IC"))] = "O"
 lfc_data_frame = data.frame(gene_name = gene_names[map,], category = rs_genes$category, lfc)
 ```
 
-Plot heatmaps
+## Figure 7 Heatmap
 ```{r heatmap 1, message = FALSE}
 index = 0
 lfc_data_frame2 = data.frame()
@@ -119,7 +119,7 @@ plot_heatmap(lfc_only, thresh = 0.97, cluster_rows = FALSE, cluster_cols = FALSE
 dev.copy2eps(file="../results/Resistance_and_Sensitivity_Genes_Script_Output/Resistance_and_Sensitivity_Genes_Script_Output.eps")
 ```
 
-
+## Supplmental Figure S3
 ```{r heatmap 2, message = FALSE}
 sub_data = lfc_data_frame %>% filter(category == "O")
 rownames(sub_data) = sub_data$gene_name.symbol

@@ -1,6 +1,6 @@
 dend_sort_exp = function (d, exp) 
 {
-  require(dendextend)
+  #require(dendextend)
   if (!inherits(d, "dendrogram") && !inherits(d, "hclust")) {
     stop("d variable must be a dendrogram or hclust object")
   }

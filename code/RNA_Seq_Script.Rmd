@@ -3,7 +3,7 @@ title: "RNA Seq Analysis"
 output: html_document
 ---
 
-This is the Code used to generate figures 5 and 6 in Stuart et al. 2018
+This code generates the RNA-seq figures (5c and 6a,b) in Stuart et al. 2018
 
 ##Preparing the Data
 Load in all the libraries.
@@ -17,9 +17,10 @@ library(dplyr)
 library(scales)
 library(readr)
 library(BiocParallel)
+library(stringr)
 ```
 
-Load in some helper functions
+Load in helper functions
 ```{r helper functions}
 source("./Helper_Functions/dend_sort_exp.R")
 source("./Helper_Functions/sort_exp.R")
@@ -27,12 +28,14 @@ source("./Helper_Functions/plot_heatmap.R")
 source("./Helper_Functions/fancy_scientific.R")
 ```
 
-Load in the data from HTseq-count
+Load in the data from HTseq-count output files
 ```{r data}
 directory = "../data"
 files = grep("htseq", list.files(directory), value=TRUE)
+files[1:9] = files[c(7:9, 4:6, 1:3)]
 sampleCondition = factor(c(rep(1,3), rep(2,3), rep(3,3), rep(4,3), rep(5,3), rep(6,3), rep(7,3), rep(8,3), rep(9,2), rep(10,3)))
-sampleTable = data.frame(sampleName = files,
+sample_names = str_remove(files, ".htseq-count.txt")
+sampleTable = data.frame(sampleName = sample_names,
                          fileName = files,
                          condition = sampleCondition)
 data = DESeqDataSetFromHTSeqCount(sampleTable = sampleTable,
@@ -68,8 +71,8 @@ Save a csv file of the data for **Table S1**.
 ```{r table s1}
 full_data = data %>% assay %>% as.data.frame
 complete_unnormalized_data = bind_cols(gene_names, full_data)
-write_csv(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.csv")
-write_delim(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.txt", delim = "\t")
+write_csv(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.csv") # for Supplementary Table 1
+write_delim(complete_unnormalized_data, path = "../results/RNA_Seq_Script_Output/complete_unnormalized_counts.txt", delim = "\t") # for NCBI GEO upload
 ```
 
 Now we pre-filter the data set to remove any genes that have 0 or 1 read across all conditions. (This reduces memory usage and speeds up the following functions) 
@@ -99,8 +102,9 @@ norm_counts = (assay(dds) / colData(dds)$sizeFactor) %>% as.data.frame
 norm_counts %>% bind_cols(gene_names) %>%
 write_csv("../results/RNA_Seq_Script_Output/Filtered_Normalized_Data.csv")
 
+#log fold change from mean of vector control samples
 lfc = rlog_data - rowMeans(rlog_data[,c(1:3)])
-bind_cols(gene_names, as.data.frame(lfc)) %>% write_csv("../results/RNA_Seq_Script_Output/Supplementary_Table_2.csv")
+bind_cols(gene_names, as.data.frame(lfc)) %>% write_csv("../results/RNA_Seq_Script_Output/Supplementary_Table_2.csv") 
 ```
 
 Let's create a histogram of the distribution of mean and max reads per gene.
@@ -144,15 +148,15 @@ ggplot(gene_type_summary, aes(x=x))+
 ggsave("../results/RNA_Seq_Script_Output/genes_by_type.eps")
 ```
 
-
-Perform principal component analysis to plot the first two components
+## Principal Component Analysis
+Perform principal component analysis and plot the first two components
 ```{r pca}
 pca = prcomp(t(rlog_data))
 summary(pca)
 var_exp = pca$sdev^2/sum(pca$sdev^2) # variance explained
 #Make dataframe for ggplot
 group <- data.frame(Timepoint = factor(c(rep("Vector", 3), rep("V600E", 3), rep("20hr Drug", 3), rep("Week 1 CONT", 3), rep("Week 2 CONT", 3), rep("Week 2 INT (OFF)", 3), rep("Week 3 CONT", 3), rep("Week 3 INT (ON)", 3), rep("Week 4 CONT", 2), rep("Week 4 INT (OFF)", 3)), levels = c("Vector", "V600E", "20hr Drug", "Week 1 CONT", "Week 2 CONT", "Week 3 CONT", "Week 4 CONT","Week 2 INT (OFF)",  "Week 3 INT (ON)", "Week 4 INT (OFF)")))
-dat = data.frame(pc1 =pca$x[,1], pc2 = pca$x[,2], Timepoint = group$Timepoint, names = substr(colnames(rld),1,5))
+dat = data.frame(pc1 =pca$x[,1], pc2 = pca$x[,2], Timepoint = group$Timepoint, names = substr(colnames(dds),1,5))
 
 color_palette = c("#cccccc", "#969696", "#525252", "#ffffcc", "#a1dab4", "#41b6c4", "#225ea8", "#fecc5c",  "#fd8d3c", "#e31a1c")
 x_axis = paste("PC1 (", percent(var_exp[1]), " Variance)", sep ="")
@@ -167,6 +171,7 @@ ggplot(data = dat, aes(x=pc1, y=pc2))+
   theme_gray(base_size = 15)+
   theme(text = element_text(family = "Times"))
 ggsave("../results/RNA_Seq_Script_Output/PCA_plot.eps", family = "Times")
+ggsave("../results/RNA_Seq_Script_Output/PCA_plot.png")
 ```
 
 Get the names of genes with high loadings for each PC
@@ -178,8 +183,11 @@ pc1_genes = which(pc1_bool)
 pc2_genes = which(pc2_bool)
 pc1_gene_names = gene_names[pc1_genes,]
 pc2_gene_names = gene_names[pc2_genes,]
-```
 
+pc1_gene_names %>% bind_cols(., as.data.frame(pca$rotation[pc1_bool, 1])) %>% write_csv(., "../results/RNA_Seq_Script_Output/pc1_genes.csv")
+pc2_gene_names %>% bind_cols(., as.data.frame(pca$rotation[pc2_bool, 1])) %>% write_csv(., "../results/RNA_Seq_Script_Output/pc2_genes.csv")
+```
+### PCA Heatmap
 Make a heatmap for PC1 and PC2
 ```{r pc heatmap}
 pc1_only = setdiff(pc1_genes, pc2_genes)
@@ -215,7 +223,8 @@ dev.copy2eps(file="../results/RNA_Seq_Script_Output/heatmap_PCA.eps")
 dev.off()
 ```
 
-Correlation Plot
+## Correlation Plot
+Create correlation plot from using the log fold change from the mean of the vector control samples.
 ```{r corr plot}
 lfc = rlog_data - rowMeans(rlog_data[ ,c(1:3)])
 cor_mat = cor(lfc)
