@@ -135,6 +135,7 @@ plot_heatmap(lfc_other_only, thresh = 0.97, cluster_rows = hc2, cluster_cols = F
 dev.copy2eps(file="../results/Resistance_and_Sensitivity_Genes_Script_Output/Supplemental_Resistance_and_Sensitivity_Genes_Script_Output.eps")
 ```
 
+
 ```{r}
 sessionInfo()
 ```
