@@ -6,12 +6,15 @@ library(tidyverse)
 library(magrittr)
 library(cowplot)
 source("code/Helper_Functions/theme_int_dosing.R")
+
 ## Ingest Data
 dr_data <- read_csv("data/lgx_mutant_dose_response.csv")
 dr_data_long <- dr_data %>% pivot_longer(!c(sample, rep_number), values_to = "cell_number", names_to = "LGX818")
+
 ## Subset for only V600E and Vector
 subset_dr_data <- dr_data_long %>% filter(sample == "Vector" | sample == "V600E")
 subset_dr_data$LGX818 %<>% as.numeric()
+
 ## Plot Dose Reponse Curves
 ggplot(subset_dr_data, aes(x = LGX818, y = cell_number, group = sample, color = sample))+
   geom_point(alpha = 0.2)+
