@@ -2,5 +2,5 @@
 .Rhistory
 .Rdata
 .Ruserdata
-/results/*
+/results/*.pdf
 *html
